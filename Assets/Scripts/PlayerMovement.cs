@@ -35,7 +35,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("hi");
+        Debug.Log("collision");
+        Application.LoadLevel(Application.loadedLevel);
     }
 
     void MovePlayerX(float pitch)
