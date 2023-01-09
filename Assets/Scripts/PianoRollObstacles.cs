@@ -33,29 +33,49 @@ public class PianoRollObstacles : MonoBehaviour
 
     bool[] GenerateRandomRowData(int rowNumber)
     {
+        // bool[] arr = new bool[widthOfTrack];
+        //
+        // bool isPassable = false;
+        //
+        // for (int i = 0; i < widthOfTrack; i++)
+        // {
+        //     // int randTopBound = (20 / (rowNumber / 5));
+        //     if (!scaleArray[i] || rand.Next(0, 3) == 0)
+        //     {
+        //         
+        //         arr[i] = true;
+        //     }
+        //     else
+        //     {
+        //         arr[i] = false;
+        //         isPassable = true; 
+        //     }
+        // }
+        //
+        // if (!isPassable)
+        // {
+        //     arr[rand.Next(0, widthOfTrack)] = false;
+        // }
+        //
+        // return arr;
+        
         bool[] arr = new bool[widthOfTrack];
 
-        bool isPassable = false;
-        
+        List<int> indexChoices = new List<int>();
+
         for (int i = 0; i < widthOfTrack; i++)
         {
-            // int randTopBound = (20 / (rowNumber / 5));
-            if (!scaleArray[i] || rand.Next(0, 3) == 0)
+            if (!scaleArray[i])
             {
-                
-                arr[i] = true;
+                arr[i] = false;
             }
             else
             {
-                arr[i] = false;
-                isPassable = true; 
+                indexChoices.Add(i);   
             }
         }
-
-        if (!isPassable)
-        {
-            arr[rand.Next(0, widthOfTrack)] = false;
-        }
+        
+        arr[indexChoices[rand.Next(0, indexChoices.Count)]] = true;
 
         return arr;
     }
