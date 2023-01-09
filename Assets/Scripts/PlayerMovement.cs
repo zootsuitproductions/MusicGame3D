@@ -8,9 +8,13 @@ public class PlayerMovement : MonoBehaviour
     private AudioSource _source;
     private PitchDetector _detector;
     private const float PitchOf0 = 130.815f;
+
+    private AudioPlayer _audioPlayer;
     
     void Start()
     {
+        _audioPlayer = GetComponent<AudioPlayer>();
+        
         Time.fixedDeltaTime = 0.03f;
         
         _source = GetComponent<AudioSource>();
@@ -35,9 +39,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        Destroy(collision.gameObject);
-        // Debug.Log("collision");
-        // Application.LoadLevel(Application.loadedLevel);
+        GameObject obj = collision.gameObject;
+        int midiNum = int.Parse(obj.name);
+        AudioPlayer.PlayNote(midiNum);
+        Destroy(obj);
     }
 
     void MovePlayerX(float pitch)

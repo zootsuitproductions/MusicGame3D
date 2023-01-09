@@ -88,6 +88,7 @@ public class PianoRollObstacles : MonoBehaviour
             if (rowData[i])
             {
                 GameObject obstacle = Instantiate(obstaclePrefabs[rand.Next(0, obstaclePrefabs.Length)], row.transform);
+                obstacle.name = i.ToString();
                 obstacle.transform.localPosition = new Vector3(i, 0, 0);
             }
         }
