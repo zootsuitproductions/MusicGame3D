@@ -41,7 +41,7 @@ public class PlayerMovement : MonoBehaviour
     {
         GameObject obj = collision.gameObject;
         int midiNum = int.Parse(obj.name);
-        AudioPlayer.PlayNote(midiNum);
+        _audioPlayer.PlayNote(midiNum);
         Destroy(obj);
     }
 

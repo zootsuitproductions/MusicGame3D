@@ -23,10 +23,18 @@ public class PianoRollObstacles : MonoBehaviour
     private float _offScreenZValue = -5f;
 
     private float startingPosition = 20f;
+    private List<int> indexChoices = new List<int>();
     
     // Start is called before the first frame update
     void Start()
     {
+        for (int i = 0; i < 5; i++)
+        {
+            if (scaleArray[i])
+            {
+                indexChoices.Add(i);   
+            }
+        }
         GameObject row = CreateRow(GenerateRandomRowData(1), startingPosition);
         currentRows.Add(row);
     }
@@ -60,19 +68,10 @@ public class PianoRollObstacles : MonoBehaviour
         // return arr;
         
         bool[] arr = new bool[widthOfTrack];
-
-        List<int> indexChoices = new List<int>();
-
+        
         for (int i = 0; i < widthOfTrack; i++)
         {
-            if (!scaleArray[i])
-            {
-                arr[i] = false;
-            }
-            else
-            {
-                indexChoices.Add(i);   
-            }
+            arr[i] = false;
         }
         
         arr[indexChoices[rand.Next(0, indexChoices.Count)]] = true;
