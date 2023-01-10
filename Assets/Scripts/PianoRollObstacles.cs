@@ -38,45 +38,46 @@ public class PianoRollObstacles : MonoBehaviour
         GameObject row = CreateRow(GenerateRandomRowData(1), startingPosition);
         currentRows.Add(row);
     }
+    
 
     bool[] GenerateRandomRowData(int rowNumber)
     {
-        // bool[] arr = new bool[widthOfTrack];
-        //
-        // bool isPassable = false;
-        //
-        // for (int i = 0; i < widthOfTrack; i++)
-        // {
-        //     // int randTopBound = (20 / (rowNumber / 5));
-        //     if (!scaleArray[i] || rand.Next(0, 3) == 0)
-        //     {
-        //         
-        //         arr[i] = true;
-        //     }
-        //     else
-        //     {
-        //         arr[i] = false;
-        //         isPassable = true; 
-        //     }
-        // }
-        //
-        // if (!isPassable)
-        // {
-        //     arr[rand.Next(0, widthOfTrack)] = false;
-        // }
-        //
-        // return arr;
-        
         bool[] arr = new bool[widthOfTrack];
+        
+        bool isPassable = false;
         
         for (int i = 0; i < widthOfTrack; i++)
         {
-            arr[i] = false;
+            // int randTopBound = (20 / (rowNumber / 5));
+            if (!scaleArray[i] || rand.Next(0, 3) == 0)
+            {
+                
+                arr[i] = true;
+            }
+            else
+            {
+                arr[i] = false;
+                isPassable = true; 
+            }
         }
         
-        arr[indexChoices[rand.Next(0, indexChoices.Count)]] = true;
-
+        if (!isPassable)
+        {
+            arr[rand.Next(0, widthOfTrack)] = false;
+        }
+        
         return arr;
+        
+        // bool[] arr = new bool[widthOfTrack];
+        //
+        // for (int i = 0; i < widthOfTrack; i++)
+        // {
+        //     arr[i] = false;
+        // }
+        //
+        // arr[indexChoices[rand.Next(0, indexChoices.Count)]] = true;
+        //
+        // return arr;
     }
 
     GameObject CreateRow(bool[] rowData, float zPosition)

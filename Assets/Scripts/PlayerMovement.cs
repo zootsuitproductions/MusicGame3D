@@ -53,7 +53,7 @@ public class PlayerMovement : MonoBehaviour
     
     private static float PitchToX(float pitch)
     {
-        return 12 * (Mathf.Log(pitch, 2) - Mathf.Log(PitchOf0, 2));
+        return Mathf.RoundToInt(12 * (Mathf.Log(pitch, 2) - Mathf.Log(PitchOf0, 2)));
     }
     
     
