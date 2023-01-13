@@ -9,12 +9,10 @@ public class PlayerMovement : MonoBehaviour
     private PitchDetector _detector;
     private const float PitchOf0 = 130.815f;
 
-    private AudioPlayer _audioPlayer;
+    public AudioPlayer pianoAudioPlayer;
     
     void Start()
     {
-        _audioPlayer = GetComponent<AudioPlayer>();
-        
         Time.fixedDeltaTime = 0.03f;
         
         _source = GetComponent<AudioSource>();
@@ -22,38 +20,55 @@ public class PlayerMovement : MonoBehaviour
         _detector = new PitchDetector(125f, 500f, 0.2f, _source.clip);
     }
 
+    private float lastXPosition = 0f;
+
     // Update is called once per frame
     void FixedUpdate()
     {
         try
         {
             int position = Microphone.GetPosition(Microphone.devices[0]);
-
+            
             MovePlayerX(_detector.GetPitchAtSamplePosition(position));
         }
         catch (ArgumentException)
         {
-            
+            QuantizeX();
         }
+    }
+
+    private void QuantizeX()
+    {
+        Vector3 pos = transform.position;
+        transform.position = new Vector3(Mathf.RoundToInt(pos.x), pos.y, pos.z);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         GameObject obj = collision.gameObject;
         int midiNum = int.Parse(obj.name);
-        _audioPlayer.PlayNote(midiNum);
+        pianoAudioPlayer.PlayNote(midiNum);
         Destroy(obj);
     }
 
     void MovePlayerX(float pitch)
     {
         var position = transform.position;
-        transform.position = new Vector3(PitchToX(pitch), position.y, position.z);
+        float x = PitchToX(pitch);
+        
+        if (Mathf.Abs(x - lastXPosition) <= 0.1f)
+        {
+            lastXPosition = x;
+            transform.position = new Vector3(x, position.y, position.z);
+        }
+        //set the last position to the current pos
+        
+        lastXPosition = x;
     }
     
     private static float PitchToX(float pitch)
     {
-        return Mathf.RoundToInt(12 * (Mathf.Log(pitch, 2) - Mathf.Log(PitchOf0, 2)));
+        return 12 * (Mathf.Log(pitch, 2) - Mathf.Log(PitchOf0, 2));
     }
     
     
