@@ -56,12 +56,11 @@ public class PlayerMovement : MonoBehaviour
         var position = transform.position;
         float x = PitchToX(pitch);
         
-        if (Mathf.Abs(x - lastXPosition) <= 0.1f)
+        if (Mathf.Abs(x - lastXPosition) <= 0.2f)
         {
             lastXPosition = x;
             transform.position = new Vector3(x, position.y, position.z);
         }
-        //set the last position to the current pos
         
         lastXPosition = x;
     }
