@@ -24,6 +24,5 @@ public class AudioPlayer : MonoBehaviour
         yield return new WaitForSeconds(seconds);
         Debug.Log("playing note at " + seconds);
         this.PlayNote(midiNumber);
-
     }
 }
