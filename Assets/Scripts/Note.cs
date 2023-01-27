@@ -1,0 +1,20 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Note
+{
+    public int Value { get; }
+    public float Time { get; }
+    public float EndTime { get; }
+    public int Velocity { get; }
+        
+    public Note(int value, float time, float endTime, int velocity)
+    {
+        Value = value;
+        Time = time;
+        EndTime = endTime;
+        Velocity = velocity;
+    }
+        
+}

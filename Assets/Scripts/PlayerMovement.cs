@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public MelodyRunway runway;
     private AudioSource _source;
     private PitchDetector _detector;
     private const float PitchOf0 = 130.815f;
@@ -49,6 +50,7 @@ public class PlayerMovement : MonoBehaviour
         int midiNum = int.Parse(obj.name);
         pianoAudioPlayer.PlayNote(midiNum);
         Destroy(obj);
+        runway.Unpause();
     }
 
     void MovePlayerX(float pitch)
