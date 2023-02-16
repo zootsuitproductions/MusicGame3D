@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Note
 {
-    public int Value { get; }
+    public int Value { get; set; }
     public float Time { get; }
     public float EndTime { get; }
     public int Velocity { get; }
@@ -15,6 +15,11 @@ public class Note
         Time = time;
         EndTime = endTime;
         Velocity = velocity;
+    }
+
+    public Note Clone()
+    {
+        return new Note(Value, Time, EndTime, Velocity);
     }
         
 }
