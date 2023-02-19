@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class PlayerMovement : MonoBehaviour
     public GameObject vertex;
     public GameObject moving;
 
-    public AudioPlayer pianoAudioPlayer;
+    [FormerlySerializedAs("pianoAudioPlayer")] public MidiPlayer pianoMidiPlayer;
 
 
     public int currentNote = -1; 

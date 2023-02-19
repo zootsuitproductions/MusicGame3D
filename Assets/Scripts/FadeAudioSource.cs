@@ -13,4 +13,34 @@ public static class FadeAudioSource {
         }
         yield break;
     }
+    
+    public static IEnumerator FadeOutThenPlayNote(AudioSource audioSource, float duration, MidiPlayer midiPlayer, Note note)
+    {
+        
+        float currentTime = 0;
+        float start = audioSource.volume;
+        while (currentTime < duration)
+        {
+            currentTime += Time.deltaTime;
+            audioSource.volume = Mathf.Lerp(start, 0, currentTime / duration);
+            yield return null;
+        }
+        audioSource.Pause();
+        note.Play(midiPlayer);
+        yield break;
+    }
+    
+    public static IEnumerator FadeIn(AudioSource audioSource, float duration)
+    {
+        float currentTime = 0;
+        float start = audioSource.volume;
+        while (currentTime < duration)
+        {
+            currentTime += Time.deltaTime;
+            audioSource.volume = Mathf.Lerp(start, 1f, currentTime / duration);
+            yield return null;
+        }
+        audioSource.UnPause();
+        yield break;
+    }
 }

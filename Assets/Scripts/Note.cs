@@ -21,5 +21,10 @@ public class Note
     {
         return new Note(Value, Time, EndTime, Velocity);
     }
+
+    public void Play(MidiPlayer player)
+    {
+        player.PlayNote(this.Value);
+    }
         
 }

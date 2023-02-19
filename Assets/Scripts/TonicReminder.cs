@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class TonicReminder : MonoBehaviour
 {
-    private AudioPlayer _audioPlayer;
+    private MidiPlayer _midiPlayer;
     // Start is called before the first frame update
     void Start()
     {
-        _audioPlayer = GetComponent<AudioPlayer>();
+        _midiPlayer = GetComponent<MidiPlayer>();
     }
 
     // Update is called once per frame
@@ -16,7 +16,7 @@ public class TonicReminder : MonoBehaviour
     {
         if (Input.GetButton("Jump"))
         {
-            _audioPlayer.PlayNote(0);
+            _midiPlayer.PlayNote(0);
         }
     }
 }
