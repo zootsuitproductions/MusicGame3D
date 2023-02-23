@@ -667,7 +667,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VOICES: 6
-  VOLUME: 0.1
   noteArray:
   - {fileID: 8300000, guid: 603ae3570ef464c24a80374e7535913a, type: 3}
   - {fileID: 0}
@@ -2645,6 +2644,7 @@ MonoBehaviour:
   playerMovement: {fileID: 1029744483}
   notePrefab: {fileID: 6222454290036940810, guid: f256669364748ba4fb3d9d8e5644e262, type: 3}
   timeScale: 1
+  headphones_mode: 0
 --- !u!1 &1516179623
 GameObject:
   m_ObjectHideFlags: 0

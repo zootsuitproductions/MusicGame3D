@@ -12,16 +12,33 @@ public class ScoreBoard : MonoBehaviour
     private int total = 0;
 
     private int score = 0;
+
+    private Dictionary<int, int> _individualNoteCorrectNumbers = new Dictionary<int, int>();
+    private Dictionary<int, int> _individualNoteTotalOccurences = new Dictionary<int, int>();
+
     
     //keep track of individual note accuracy on each note (got 3/4 G's right, 0/2 F's, etc)
 
-    public void Increment(bool correct)
+    private void AddOneToKey(Dictionary<int, int> dict, int key)
+    {
+        if (dict.ContainsKey(key))
+        {
+            dict[key] += 1;
+        } 
+        else
+        {
+            dict[key] = 1;
+        }
+    }
+    public void Increment(int noteVal, bool correct)
     {
         if (correct)
         {
+            AddOneToKey(_individualNoteCorrectNumbers, noteVal);
             numCorrect += 1;
         }
-
+        
+        AddOneToKey(_individualNoteTotalOccurences, noteVal);
         total += 1;
     }
     

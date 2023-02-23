@@ -17,14 +17,18 @@ public class MidiData
 
     private float threshold;
     private float _wrongNoteCooldown;
-    
+
+    private int[] _blacklisted;
     
     // Create a representation of a melody from a midi file, from a midi file name to read from,
     // an integer number of notes to pitch up by, and the minimum and maximum notes of the range of the outputted melody.
-    public MidiData(String filename, int pitchShift, int minMidiNote, int maxMidiNote, bool leaveUnclamped, float sameNoteThresh, float wrongNoteCooldown)
+    public MidiData(String filename, int pitchShift, int minMidiNote, int maxMidiNote, int[] blacklistedNotesInRange, float sameNoteThresh, float wrongNoteCooldown)
     {
         minNote = minMidiNote;
         maxNote = maxMidiNote;
+        
+        _blacklisted = blacklistedNotesInRange;
+
 
         threshold = sameNoteThresh;
         _wrongNoteCooldown = wrongNoteCooldown;
@@ -72,7 +76,7 @@ public class MidiData
         }
         else
         {
-            return ClampNoteToVocalRange(GetSameNoteAfterThreshold(_notes[_currentNoteIndex], _wrongNoteCooldown));
+            return ClampNoteToVocalRange(GetSameNoteInTimeRange(_notes[_currentNoteIndex], threshold, 2 * _wrongNoteCooldown));
         }
     }
 
@@ -116,19 +120,24 @@ public class MidiData
         throw new ArgumentException("No valid first note detected");
     }
 
-    private Note GetSameNoteAfterThreshold(Note currentNote, float threshold)
+    private Note GetSameNoteInTimeRange(Note currentNote, float minTime, float maxTime)
     {
         int savedNoteIndex = _currentNoteIndex;
         
         for (int i = _currentNoteIndex; i < _notes.Count; i++)
         {
             Note potentialNote = _notes[i];
+
+            if (potentialNote.Time - currentNote.Time >= maxTime)
+            {
+                break;
+            }
             
             // make sure note is within range
             if (!NoteIsWithinRange(potentialNote)) continue;
             
             // ensure that threshold seconds have passed before the potential note
-            if (potentialNote.Time - currentNote.Time < threshold) continue;
+            if (potentialNote.Time - currentNote.Time < minTime) continue;
             
             // ensure clamped notes are the same
             if (ClampNoteToVocalRange(potentialNote).Value 
@@ -139,7 +148,7 @@ public class MidiData
         }
 
         _currentNoteIndex = savedNoteIndex;
-        return GetFirstDifferentNoteAfterThreshold(currentNote, 2 * threshold);
+        return GetFirstDifferentNoteAfterThreshold(currentNote, minTime);
     }
     
     // get the first note of a different midi value that occurs after a certain number of seconds
@@ -288,6 +297,13 @@ public class MidiData
     private bool IsClampedNoteInVocalRange(Note note)
     {
         int clampedVal = ClampNoteToVocalRange(note).Value;
+
+        foreach (var val in _blacklisted)
+        {
+            if (val == clampedVal)
+                return false;
+        }
+        
         return clampedVal <= maxNote && clampedVal >= minNote;
     }
 

@@ -1,14 +1,11 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public MelodyRunway runway;
-    private AudioSource _source;
+    public Runway2 runway;
+    private AudioSource _micSource;
     private PitchDetector _detector;
     private const float PitchOf0 = 130.815f;
     
@@ -16,22 +13,36 @@ public class PlayerMovement : MonoBehaviour
     public GameObject moving;
 
     [FormerlySerializedAs("pianoAudioPlayer")] public MidiPlayer pianoMidiPlayer;
+    
+    //use .enabled
 
-
-    public int currentNote = -1; 
+    public int currentNote = -1;
+    public int correctNoteValue;
     
     void Start()
     {
         Time.fixedDeltaTime = 0.01f;
         
-        _source = GetComponent<AudioSource>();
+        _micSource = GetComponent<AudioSource>();
         
         //test if this actually works by filtering at 20k hertz and making sure no signal is detected
         
-        _source.clip = Microphone.Start(Microphone.devices[0], true, 100, AudioSettings.outputSampleRate);
+        _micSource.clip = Microphone.Start(Microphone.devices[0], true, 100, AudioSettings.outputSampleRate);
 
-        _detector = new PitchDetector(130f, 300f, Time.fixedDeltaTime, 0.05f, 0.1f, 2f, _source.clip);
+        _detector = new PitchDetector(130f, 300f, Time.fixedDeltaTime, 0.05f, 0.1f, 2f, _micSource.clip);
         Invoke("assignLoudness", 0.1f);
+    }
+
+    public void ListenForNote(int midiValue)
+    {
+        currentNote = -1;
+        correctNoteValue = midiValue;
+    }
+    
+    public void StopListening()
+    {
+        // if (currentNote == -1)
+        runway.CorrectNoteMissed();
     }
 
     private void assignLoudness()
@@ -39,54 +50,41 @@ public class PlayerMovement : MonoBehaviour
         _detector.GetNoInputVolumeLoudness(0.1f);
     }
 
-    public bool micActive = false; 
-
-    // Update is called once per frame
     void FixedUpdate()
     {
-        if (micActive)
+        try
         {
-            // Vector3 pos = moving.transform.position;
-            // moving.transform.position = new Vector3(pos.x, pos.y, -2*Time.time);
-            try
-            {
-                int position = Microphone.GetPosition(Microphone.devices[0]);
+            int position = Microphone.GetPosition(Microphone.devices[0]);
+            float pitch = _detector.GetPitchAtSamplePosition(position);
             
-                float pitch = _detector.GetPitchAtSamplePosition(position);
-                // GameObject obj = Instantiate(vertex, new Vector3(PitchToX(posi), 1, 0), Quaternion.identity);
-                // obj.transform.parent = moving.transform;
-                MovePlayerX(pitch);
-            }
-            catch (ArgumentException)
+            int newNote = MovePlayerXAndReturnNote(pitch);
+            
+            //see if the note changed
+            if (newNote != currentNote)
             {
-                // QuantizeX();
-            } 
+                if (newNote == correctNoteValue)
+                {
+                    runway.CorrectNoteHit();
+                }
+                else
+                {
+                    runway.CorrectNoteMissed();
+                }
+            }
+
+            currentNote = newNote;
         }
-        
+        catch (ArgumentException){}
     }
 
-    private void QuantizeX()
-    {
-        Vector3 pos = transform.position;
-        transform.position = new Vector3(Mathf.RoundToInt(pos.x), pos.y, pos.z);
-    }
-    //
-    // private void OnCollisionEnter(Collision collision)
-    // {
-    //     GameObject obj = collision.gameObject;
-    //     int midiNum = int.Parse(obj.name);
-    //     pianoAudioPlayer.PlayNote(midiNum);
-    //     Destroy(obj);
-    //     runway.Unpause();
-    // }
-
-    void MovePlayerX(float pitch)
+    int MovePlayerXAndReturnNote(float pitch)
     {
         var position = transform.position;
         float x = PitchToX(pitch);
-
-        currentNote = Mathf.RoundToInt(x) + 48; //midi note
+        
         transform.position = new Vector3(x, position.y, position.z);
+        
+        return Mathf.RoundToInt(x) + 48;
     }
     
     private static float PitchToX(float pitch)

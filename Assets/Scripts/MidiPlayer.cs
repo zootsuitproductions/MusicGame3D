@@ -4,7 +4,7 @@ using UnityEngine;
 public class MidiPlayer : MonoBehaviour
 {
     public int VOICES = 6;
-    public float VOLUME = 0.1f;
+    private float VOLUME = 0.5f;
     
     private static AudioSource _source;
     public AudioClip[] noteArray;
@@ -21,7 +21,6 @@ public class MidiPlayer : MonoBehaviour
             _sources[i] = gameObject.AddComponent<AudioSource>();
             _sources[i].volume = VOLUME;
         }
-        
     }
 
     public void PlayNote(int midiNumber)
