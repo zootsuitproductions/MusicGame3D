@@ -15,6 +15,8 @@ public class MidiData
     private int minNote;
     private int maxNote;
 
+    private int _pitchShift;
+
     private float threshold;
     private float _wrongNoteCooldown;
 
@@ -24,8 +26,9 @@ public class MidiData
     // an integer number of notes to pitch up by, and the minimum and maximum notes of the range of the outputted melody.
     public MidiData(String filename, int pitchShift, int minMidiNote, int maxMidiNote, int[] blacklistedNotesInRange, float sameNoteThresh, float wrongNoteCooldown)
     {
-        minNote = minMidiNote;
-        maxNote = maxMidiNote;
+        minNote = minMidiNote - pitchShift;
+        maxNote = maxMidiNote - pitchShift;
+        _pitchShift = pitchShift;
         
         _blacklisted = blacklistedNotesInRange;
 
@@ -44,25 +47,8 @@ public class MidiData
             float startTime = beatNumber * (60f / BPM);
             float endTime = beatNumberEnd * (60f / BPM);
 
-            _notes.Add(new Note(note.NoteNumber + pitchShift, startTime, endTime, note.Velocity));
+            _notes.Add(new Note(note.NoteNumber - pitchShift, startTime, endTime, note.Velocity));
         }
-        
-        // GraphNotes(false);
-        //get the timing right for more dispersed notes
-        
-        
-        //make the threshold dynamic as time goes on. increasing difficulty. find out the minimum possible given the 
-        // mic limitations
-        // _melodyNotes = GetMelody(_notes, sameNoteThresh, leaveUnclamped);
-
-        // Note nextNote = GetFirstMelodyNote(sameNoteThresh);
-        // while (nextNote != null)
-        // {
-        //     _melodyNotes.Add(nextNote);
-        //     nextNote = GetNextMelodyNoteAny(nextNote, sameNoteThresh);
-        // }
-        //
-        // _melodyNotes = Clamp(_melodyNotes);
     }
 
     public Note GetNextMelodyNote(bool repeatValue)
