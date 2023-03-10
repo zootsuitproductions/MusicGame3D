@@ -22,11 +22,6 @@ public class Note
         return new Note(Value, Time, EndTime, Velocity);
     }
 
-    public void Play(MidiPlayer player)
-    {
-        player.PlayNote(this.Value);
-    }
-    
     public static float HertzToMidiNoteValue(float hertz)
     {
         // MIDI note value for A4 (440 Hz)

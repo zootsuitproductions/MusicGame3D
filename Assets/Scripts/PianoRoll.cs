@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class PianoRoll : MonoBehaviour
 {
     [SerializeField] private SongPlayer songPlayer;
     [SerializeField] private PlayerMovement2D playerMovement;
     [SerializeField] private GameObject notePrefab;
+    [SerializeField] private Scoreboard scoreboard;
     
     private GameObject _currentNoteObject;
     private MidiData _midiData;
@@ -21,8 +23,6 @@ public class PianoRoll : MonoBehaviour
         _midiData = new MidiData("Assets/Resources/" + midiFilePath + ".mid", 
             pitchShift, minPossibleMidiNote, maxPossibleMidiNote, new int[]{}, 
             minTimeBetweenMelodyNotes, minTimeBetweenMelodyNotes);
-
-        // _notePromptTime = minTimeBetweenMelodyNotes;
         
         _currentNote = _midiData.GetNextMelodyNote(false);
     }
@@ -38,17 +38,16 @@ public class PianoRoll : MonoBehaviour
                 PromptNote(_currentNote);
             }
         }
-        else
-        {
-            // ApplyDamageToCurrentNote();
-        }
        
     }
 
     public void GoToNextNote(GameObject currentNoteObject, bool repeatValue)
     {
+        scoreboard.Increment(_currentNote.Value, !repeatValue);
+        
         //this won't work right now if note missed. well it will, but the times will be wrong
         _currentNote = _midiData.GetNextMelodyNote(repeatValue);
+        
         notePrompted = false;
         Destroy(currentNoteObject);
     }
