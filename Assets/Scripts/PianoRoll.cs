@@ -20,7 +20,7 @@ public class PianoRoll : MonoBehaviour
 
     public void InitializeNotes(string midiFilePath, int pitchShift, int minPossibleMidiNote, int maxPossibleMidiNote, float minTimeBetweenMelodyNotes)
     {
-        _midiData = new MidiData("Assets/Resources/" + midiFilePath + ".mid", 
+        _midiData = new MidiData(midiFilePath,
             pitchShift, minPossibleMidiNote, maxPossibleMidiNote, new int[]{}, 
             minTimeBetweenMelodyNotes, minTimeBetweenMelodyNotes);
         
@@ -38,7 +38,6 @@ public class PianoRoll : MonoBehaviour
                 PromptNote(_currentNote);
             }
         }
-       
     }
 
     public void GoToNextNote(GameObject currentNoteObject, bool repeatValue)
@@ -50,6 +49,11 @@ public class PianoRoll : MonoBehaviour
         
         notePrompted = false;
         Destroy(currentNoteObject);
+    }
+
+    void PromptExampleNote(Note note)
+    {
+        
     }
 
     

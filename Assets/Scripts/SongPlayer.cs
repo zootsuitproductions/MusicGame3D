@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class SongPlayer : MonoBehaviour
 {
@@ -9,11 +11,14 @@ public class SongPlayer : MonoBehaviour
 
     private const float FADE_OUT_TIME = 0.1f;
     
-    public void LoadSong(string filePath)
+    public void LoadSong(AudioClip clip)
     {
         _audioSource = gameObject.AddComponent<AudioSource>();
         _audioSource.volume = volume;
-        _audioSource.clip = Resources.Load<AudioClip>(filePath);
+        // Debug.Log("web " + webFilePath);
+        _audioSource.clip = clip;
+            // Resources.Load<AudioClip>("Audio/bach");
+        
         _audioSource.Play();
     }
 
@@ -44,5 +49,4 @@ public class SongPlayer : MonoBehaviour
         }
         yield break;
     }
-
 }
