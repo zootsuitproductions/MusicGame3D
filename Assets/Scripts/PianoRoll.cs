@@ -21,8 +21,11 @@ public class PianoRoll : MonoBehaviour
 
     private float _timeInAdvanceToPromptNote = 1.5f;
 
+    private int _pitchShift;
+
     public void InitializeNotes(string midiFilePath, int pitchShift, int minPossibleMidiNote, int maxPossibleMidiNote, float minTimeBetweenMelodyNotes)
     {
+        _pitchShift = pitchShift;
         _midiData = new MidiData(midiFilePath,
             pitchShift, minPossibleMidiNote, maxPossibleMidiNote, new int[]{}, 
             minTimeBetweenMelodyNotes, minTimeBetweenMelodyNotes);
@@ -65,7 +68,7 @@ public class PianoRoll : MonoBehaviour
         if (isExampleNote)
         {
             _currentNoteObject = Instantiate(exampleNotePrefab, transform);
-            _currentNoteObject.GetComponent<ExampleNoteMovement>().Instantiate(note, songPlayer, playerMovement, this, _timeInAdvanceToPromptNote);
+            _currentNoteObject.GetComponent<ExampleNoteMovement>().Instantiate(note, songPlayer, playerMovement, this, _timeInAdvanceToPromptNote, _pitchShift);
             currentNoteIsExampleNote = false;
         }
         else

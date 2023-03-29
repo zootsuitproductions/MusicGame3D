@@ -23,7 +23,7 @@ public class NoteMovement : MonoBehaviour
     protected float _speed;
     
     public void Instantiate(Note note, SongPlayer songPlayer, PlayerMovement2D playerMovement2D, PianoRoll pianoRoll, float secondsInAdvanceToStartPromptingNote)
-    {
+    { 
         _note = note;
         _shakeFrequency = Note.MidiNoteToHertz(_note.Value);
         _songPlayer = songPlayer;

@@ -10,7 +10,16 @@ public class ExampleNoteMovement : NoteMovement
     [SerializeField] private SpriteRenderer _spriteRenderer;
 
     private float timeToPlayAudioAfterShattering = 1f;
+    private int _pitchShift = 0;
 
+    public void Instantiate(Note note, SongPlayer songPlayer, PlayerMovement2D playerMovement2D, PianoRoll pianoRoll,
+        float secondsInAdvanceToStartPromptingNote, int pitchShift)
+    {
+
+        _pitchShift = pitchShift;  
+      base.Instantiate(note, songPlayer, playerMovement2D, pianoRoll, secondsInAdvanceToStartPromptingNote);
+    }
+    
     // Update is called once per frame
     void Update()
     {
@@ -37,7 +46,7 @@ public class ExampleNoteMovement : NoteMovement
         else
         {
             ShakeNote();
-            _soundController.playMidiNoteOnce(_note.Value);
+            _soundController.playMidiNoteOnce(_note.Value + _pitchShift);
             //at position, shake for 1 second and get bigger
             transform.localScale += new Vector3(Time.deltaTime,Time.deltaTime,Time.deltaTime)/4;
         }
