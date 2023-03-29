@@ -9,12 +9,12 @@ public class GameManager : MonoBehaviour
 {
     private static AudioClip songClip;
     private static string midiFilePath;
-    
+    private static int pitchShift;
+
     [SerializeField] private float minTimeBetweenMelodyNotes;
     [SerializeField] private int minPossibleMidiNote;
     [SerializeField] private int maxPossibleMidiNote;
-    [SerializeField] private int pitchShift;
-    
+
     [SerializeField] private SongPlayer songPlayer;
     [SerializeField] private PlayerMovement2D playerMovement2D;
     [SerializeField] private PianoRoll pianoRoll;
@@ -25,17 +25,22 @@ public class GameManager : MonoBehaviour
         this.minTimeBetweenMelodyNotes = minTimeBetweenMelodyNotes;
         this.minPossibleMidiNote = minPossibleMidiNote;
         this.maxPossibleMidiNote = maxPossibleMidiNote;
-        this.pitchShift = pitchShift;
     }
 
-    public static void StartGame(AudioClip songClip, string midiPath)
+    private static void SwitchToGameScene(AudioClip songClip, string midiPath, int pitchShift)
     {
         GameManager.songClip = songClip;
         GameManager.midiFilePath = midiPath;
+        GameManager.pitchShift = pitchShift;
         SceneManager.LoadScene("Game");
     }
+
+    public void EndGame()
+    {
+        SceneManager.LoadScene("High Score");
+    }
     
-    public static IEnumerator GetSongAudioClipThenStartGame(string mp3Path, string midiPath)
+    public static IEnumerator GetSongAudioClipThenStartGame(string mp3Path, string midiPath, int pitchShift)
     {
         string webFilePath = "file://" + mp3Path;
         
@@ -50,12 +55,12 @@ public class GameManager : MonoBehaviour
             else
             {
                 AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
-                StartGame(clip, midiPath);
+                SwitchToGameScene(clip, midiPath, pitchShift);
             }
         }
     }
 
-    void StartGame()
+    private void StartGame()
     {
         songPlayer.LoadSong(songClip);
         playerMovement2D.SetPitchRange(minPossibleMidiNote, maxPossibleMidiNote);

@@ -36,7 +36,7 @@ public class ScrollView : MonoBehaviour
                 {
                     string[] pieces = song.Split(NewFile.seperator);
                     GameObject row = Instantiate(itemPrefab, this.transform);
-                    row.GetComponent<ScrollItem>().Initialize(pieces[0], pieces[1], pieces[2]);
+                    row.GetComponent<ScrollItem>().Initialize(pieces[0], pieces[1], pieces[2], int.Parse(pieces[3]));
                 }
             }
         }

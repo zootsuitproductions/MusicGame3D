@@ -10,6 +10,9 @@ public class Scoreboard : MonoBehaviour
     private int numCorrect = 0;
     private int total = 0;
 
+    public static float score = 0;
+    public static int totalNotes = 0;
+
     private Dictionary<int, int> _individualNoteCorrectNumbers = new Dictionary<int, int>();
     private Dictionary<int, int> _individualNoteTotalOccurrences = new Dictionary<int, int>();
     
@@ -36,11 +39,14 @@ public class Scoreboard : MonoBehaviour
         
         AddOneToKey(_individualNoteTotalOccurrences, noteVal);
         total += 1;
+        totalNotes = total;
+        score = (float) numCorrect / (float) total;
     }
     
     // Start is called before the first frame update
     void Awake()
     {
+        score = 0;
         correct = GetComponentInChildren<TMP_Text>();
     }
 

@@ -6,21 +6,21 @@ using UnityEngine.Serialization;
 
 public class NoteMovement : MonoBehaviour
 {
-    [SerializeField] private float finalPositionY;
-    [SerializeField] private float initialPositionY;
+    [SerializeField] protected float finalPositionY;
+    [SerializeField] protected float initialPositionY;
     
-    [SerializeField] private GameObject shattered;
+    [SerializeField] protected GameObject shattered;
 
-    private float elapsedTime = 0f;
+    protected float elapsedTime = 0f;
 
-    private float health = 0.3f;
+    protected float health = 0.3f;
 
-    private Note _note;
-    private float _shakeFrequency;
-    private SongPlayer _songPlayer;
-    private PlayerMovement2D _playerMovement2D;
-    private PianoRoll _pianoRoll;
-    private float _speed;
+    protected Note _note;
+    protected float _shakeFrequency;
+    protected SongPlayer _songPlayer;
+    protected PlayerMovement2D _playerMovement2D;
+    protected PianoRoll _pianoRoll;
+    protected float _speed;
     
     public void Instantiate(Note note, SongPlayer songPlayer, PlayerMovement2D playerMovement2D, PianoRoll pianoRoll, float secondsInAdvanceToStartPromptingNote)
     {
@@ -42,28 +42,29 @@ public class NoteMovement : MonoBehaviour
         
         if (health <= 0f)
         {
-            _pianoRoll.GoToNextNote(gameObject, false);
-            Shatter();
+            _pianoRoll.GoToNextNote(false);
+            Shatter(transform.localScale);
+            Destroy(gameObject);
         }
     }
 
-    private void Shatter()
+    protected void Shatter(Vector3 scale)
     {
-        Instantiate(shattered, transform.parent).transform.localPosition = transform.localPosition;
-        Destroy(gameObject);
+        GameObject cracked = Instantiate(shattered, transform.parent);
+        cracked.transform.localPosition = transform.localPosition;
+        cracked.transform.localScale = scale;
     }
 
     private float _shakeTime = 0f;
-
     private float _shakeWidthX = 0.1f;
 
-    private void ShakeNote()
+    protected void ShakeNote()
     {
         _shakeTime += Time.deltaTime;
         transform.localPosition = new Vector3(_note.Value + _shakeWidthX * (_shakeTime + 1) * Mathf.Sin(_shakeFrequency * 2 * Mathf.PI * _shakeTime), transform.localPosition.y, transform.localPosition.z);
     }
 
-    private bool MoveYValueAndReturnTrueWhenDone(float initialY, float endY, float speed)
+    protected bool MoveYValueAndReturnTrueWhenDone(float initialY, float endY, float speed)
     {
         Vector3 pos = transform.localPosition;
         if (pos[1] == endY)
@@ -97,9 +98,9 @@ public class NoteMovement : MonoBehaviour
         } 
         else if (MoveYValueAndReturnTrueWhenDone(finalPositionY, initialPositionY, _speed)) {
             //mind the GAP ??!!
-            _pianoRoll.GoToNextNote(gameObject, true);
+            _pianoRoll.GoToNextNote(true);
+            Destroy(gameObject);
         }
-        
         if (Mathf.Abs(_playerMovement2D.transform.localPosition.x - transform.localPosition.x) < 0.4f)
         {
             DecreaseHealthAndCheckIfDead(Time.deltaTime);

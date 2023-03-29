@@ -51,19 +51,13 @@ public class MidiData
         }
     }
 
-    public Note GetNextMelodyNote(bool repeatValue)
+    public Note GetNextMelodyNote(float playbackPosition, bool repeatValue)
     {
         if (_currentNoteIndex == 0)
             return ClampNoteToVocalRange(GetFirstMelodyNote(threshold));
 
-        if (!repeatValue)
-        {
-            return ClampNoteToVocalRange(GetFirstDifferentNoteAfterThreshold(_notes[_currentNoteIndex], threshold));
-        }
-        else
-        {
-            return ClampNoteToVocalRange(GetSameNoteInTimeRange(_notes[_currentNoteIndex], threshold, 2 * _wrongNoteCooldown));
-        }
+        return ClampNoteToVocalRange(GetNextMelodyNote(_notes[_currentNoteIndex], repeatValue, playbackPosition,
+            threshold));
     }
 
 
@@ -106,49 +100,146 @@ public class MidiData
         throw new ArgumentException("No valid first note detected");
     }
 
-    private Note GetSameNoteInTimeRange(Note currentNote, float minTime, float maxTime)
-    {
-        int savedNoteIndex = _currentNoteIndex;
-        
-        for (int i = _currentNoteIndex; i < _notes.Count; i++)
-        {
-            Note potentialNote = _notes[i];
+    // private Note GetSameNoteInTimeRange(Note currentNote, float minTime, float maxTime)
+    // {
+    //     int savedNoteIndex = _currentNoteIndex;
+    //     
+    //     for (int i = _currentNoteIndex; i < _notes.Count; i++)
+    //     {
+    //         Note potentialNote = _notes[i];
+    //
+    //         if (potentialNote.Time - currentNote.Time >= maxTime)
+    //         {
+    //             break;
+    //         }
+    //         
+    //         // make sure note is within range
+    //         if (!NoteIsWithinRange(potentialNote)) continue;
+    //         
+    //         // ensure that threshold seconds have passed before the potential note
+    //         if (potentialNote.Time - currentNote.Time < minTime) continue;
+    //         
+    //         // ensure clamped notes are the same
+    //         if (ClampNoteToVocalRange(potentialNote).Value 
+    //             != ClampNoteToVocalRange(currentNote).Value) continue;
+    //         
+    //         _currentNoteIndex = i;
+    //         return potentialNote;
+    //     }
+    //
+    //     _currentNoteIndex = savedNoteIndex;
+    //     return GetFirstDifferentNoteAfterTime(currentNote, minTime);
+    // }
 
-            if (potentialNote.Time - currentNote.Time >= maxTime)
+    private bool isValueAllowed(Note potentialNote, Note previousNote, bool repeatValue)
+    {
+        if (repeatValue)
+        {
+            return ClampNoteToVocalRange(potentialNote).Value
+                   == ClampNoteToVocalRange(previousNote).Value;
+        }
+        else
+        {
+            return ClampNoteToVocalRange(potentialNote).Value
+                   != ClampNoteToVocalRange(previousNote).Value;
+        }
+    }
+
+    private Note GetNextMelodyNote(Note previousNote, bool repeatValue, float afterThisTimeInMidiClip,
+        float distinctNoteTimeThreshold)
+    {
+        Note note = null;
+        while (_currentNoteIndex < _notes.Count - 1)
+        {
+            _currentNoteIndex++;
+            note = _notes[_currentNoteIndex];
+            
+            
+            if (note.Time >= afterThisTimeInMidiClip 
+                && isValueAllowed(note, previousNote, repeatValue)) break;
+        }
+        
+        //now the current note is the first note after the time.
+        //Need to find if there are any overlapping higher melody notes, and that this note is not equal to the currentNote value 
+        while (_currentNoteIndex < _notes.Count - 1)
+        {
+            _currentNoteIndex++;
+
+            Note nextNote = _notes[_currentNoteIndex];
+            
+            // if the next note is played a lot later, break 
+            if (nextNote.Time - note.Time >= distinctNoteTimeThreshold)
             {
                 break;
             }
+            // if the next note is basically at the same time (within the distinctNoteTimeThreshold), 
+            // update the note if it is higher in value and not equal to the previous note
+            else if (nextNote.Value > note.Value && isValueAllowed(nextNote, previousNote, repeatValue))
+            {
+                note = nextNote;
+            }
+        }
+        
+        return note;
+        
+    }
+
+    private Note GetNextDifferentMelodyNote(Note previousNote, float afterThisTimeInMidiClip, float distinctNoteTimeThreshold)
+    {
+        _currentNoteIndex++;
+        
+        Note note = _notes[_currentNoteIndex];
+        while (_currentNoteIndex < _notes.Count)
+        {
+            note = _notes[_currentNoteIndex];
             
-            // make sure note is within range
-            if (!NoteIsWithinRange(potentialNote)) continue;
+            if (note.Time >= afterThisTimeInMidiClip && ClampNoteToVocalRange(note).Value 
+                != ClampNoteToVocalRange(previousNote).Value) break;
             
-            // ensure that threshold seconds have passed before the potential note
-            if (potentialNote.Time - currentNote.Time < minTime) continue;
+            _currentNoteIndex++;
+        }
+        
+        //now the current note is the first note after the time.
+        //Need to find if there are any overlapping higher melody notes, and that this note is not equal to the currentNote value 
+        while (_currentNoteIndex < _notes.Count - 1)
+        {
+            _currentNoteIndex++;
+
+            Note nextNote = _notes[_currentNoteIndex];
             
-            // ensure clamped notes are the same
-            if (ClampNoteToVocalRange(potentialNote).Value 
-                != ClampNoteToVocalRange(currentNote).Value) continue;
+            //if the next note is played a lot later, break 
+            if (nextNote.Time - note.Time >= distinctNoteTimeThreshold)
+            {
+                break;
+            }
+            //if the next note is basically at the same time (within the distinctNoteTimeThreshold), 
+            //update the note if it is higher in value and not equal to the previous note
             
-            _currentNoteIndex = i;
-            return potentialNote;
+            else if (nextNote.Value > note.Value && ClampNoteToVocalRange(nextNote).Value 
+                     != ClampNoteToVocalRange(previousNote).Value)
+            {
+                note = nextNote;
+            }
         }
 
-        _currentNoteIndex = savedNoteIndex;
-        return GetFirstDifferentNoteAfterThreshold(currentNote, minTime);
+        return note;
     }
     
     // get the first note of a different midi value that occurs after a certain number of seconds
-    private Note GetFirstDifferentNoteAfterThreshold(Note currentNote, float threshold)
+    private Note GetFirstDifferentNoteAfterTime(Note currentNote, float time, float sameNoteThreshold)
     {
+        Note lastNote;
         for (int i = _currentNoteIndex; i < _notes.Count; i++)
         {
             Note potentialNote = _notes[i];
+
+            if (potentialNote.Time <= time) continue;
             
             // make sure note is within range
             if (!NoteIsWithinRange(potentialNote)) continue;
             
             // ensure that threshold seconds have passed before the potential note
-            if (potentialNote.Time - currentNote.Time < threshold) continue;
+            if (potentialNote.Time - currentNote.Time < sameNoteThreshold) continue;
             
             // ensure clamped notes aren't the same
             if (ClampNoteToVocalRange(potentialNote).Value 
@@ -166,34 +257,34 @@ public class MidiData
         return (potentialNote.Value > 36 && IsClampedNoteInVocalRange(potentialNote));
     }
     
-    [CanBeNull]
-    private Note GetNextMelodyNoteAny(Note currentNote, float threshold)
-    {
-        Note note = GetFirstDifferentNoteAfterThreshold(currentNote, threshold);
-
-        if (note == null)
-            return null;
-        
-        for (int i = _currentNoteIndex + 1; i < _notes.Count; i++)
-        {
-            Note potentialNote = _notes[i];
-
-            // no more simultaneous notes, so stick with the last one saved to note var
-            if (potentialNote.Time - note.Time >= threshold) break;
-
-            if (!NoteIsWithinRange(potentialNote)) continue;
-            if (potentialNote.Value <= note.Value) continue;
-            if (ClampNoteToVocalRange(potentialNote).Value 
-                == ClampNoteToVocalRange(currentNote).Value) continue;
-            
-            note = potentialNote;
-            _currentNoteIndex = i;
-
-        }
-        
-        PopulateOctaveNoteDic(note);
-        return note;
-    }
+    // [CanBeNull]
+    // private Note GetNextMelodyNoteAny(Note currentNote, float threshold)
+    // {
+    //     Note note = GetFirstDifferentNoteAfterTime(currentNote, threshold);
+    //
+    //     if (note == null)
+    //         return null;
+    //     
+    //     for (int i = _currentNoteIndex + 1; i < _notes.Count; i++)
+    //     {
+    //         Note potentialNote = _notes[i];
+    //
+    //         // no more simultaneous notes, so stick with the last one saved to note var
+    //         if (potentialNote.Time - note.Time >= threshold) break;
+    //
+    //         if (!NoteIsWithinRange(potentialNote)) continue;
+    //         if (potentialNote.Value <= note.Value) continue;
+    //         if (ClampNoteToVocalRange(potentialNote).Value 
+    //             == ClampNoteToVocalRange(currentNote).Value) continue;
+    //         
+    //         note = potentialNote;
+    //         _currentNoteIndex = i;
+    //
+    //     }
+    //     
+    //     PopulateOctaveNoteDic(note);
+    //     return note;
+    // }
 
 
     //check if a note is represented across multiple octaves in the vocal range
@@ -232,6 +323,10 @@ public class MidiData
     //assign the note to a value within the vocal range
     private Note ClampNoteToVocalRange(Note note)
     {
+        if (note == null)
+        {
+            return null;
+        }
         int clampedVal = note.Value;
         while (clampedVal > maxNote)
         {
@@ -309,16 +404,5 @@ public class MidiData
 
         return clamped;
     }
-
-    public void GraphNotes(bool red)
-    {
-        for (int i = 0; i < _notes.Count; i++)
-        {
-            Note note = _notes[i];
-            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            if (red) 
-                cube.GetComponent<MeshRenderer>().material.color = Color.red;
-            cube.transform.position = new Vector3(note.Time+20f, 5, note.Value);
-        }
-    }
+    
 }
