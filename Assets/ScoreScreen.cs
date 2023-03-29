@@ -16,6 +16,7 @@ public class ScoreScreen : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        highScoreValue = PlayerPrefs.GetFloat(currentSong, 0);
         if (Scoreboard.totalNotes < 10)
         {
             scoreText.text = "You didn't play long enough to get scored!";
@@ -26,13 +27,11 @@ public class ScoreScreen : MonoBehaviour
             scoreText.text = "Score: " + Scoreboard.score.ToString("0.00");
             
         }
-        highScoreValue = PlayerPrefs.GetFloat(currentSong, 0);
         highScore.text = "High Score: " + highScoreValue.ToString("0.00");
     }
 
     public static void UpdateHighScoreIfNecessary(float score)
     {
-        
         if (score > highScoreValue)
         {
             highScoreValue = Scoreboard.score;
